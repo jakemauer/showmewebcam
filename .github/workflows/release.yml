@@ -20,6 +20,7 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     env:
+      BUILDROOT_VERSION: '2021.08.2'
       BUILDROOT_DIR: 'buildroot'
 
     strategy:
@@ -56,6 +57,13 @@ jobs:
       # https://github.com/actions/virtual-environments/issues/2577
       - name: Blocked mirror workaround
         run: echo "127.0.0.1 invisible-mirror.net" | sudo tee -a /etc/hosts
+
+      - name: Download Buildroot
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        run: |
+          wget -qc https://buildroot.org/downloads/buildroot-${{ env.BUILDROOT_VERSION }}.tar.gz
+          tar -zxf buildroot-${{ env.BUILDROOT_VERSION }}.tar.gz
+          mv buildroot-${{ env.BUILDROOT_VERSION }} ${{ env.BUILDROOT_DIR }}
 
       - name: Build Image
         run: |
